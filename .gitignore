@@ -1,0 +1,7 @@
+Makefile
+build
+test.sql
+test
+*.swp
+*.so
+*.make
