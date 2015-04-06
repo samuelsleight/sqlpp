@@ -12,11 +12,12 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <tuple>
 #include <memory>
 
 SQLLIB_NS
 
-template<typename>
+template<typename, typename>
 class Table;
 
 class DB : public std::enable_shared_from_this<DB> {
@@ -29,12 +30,12 @@ public:
     static Ptr sqlite3(std::string filename);
 #endif
 
-    std::shared_ptr<Table<Nil>> addTable(std::string name);
+    std::shared_ptr<Table<TypeList<Void>, std::tuple<>>> addTable(std::string name);
 
     virtual void executeCreate(std::string sql) = 0;
 
 private:
-    template<typename>
+    template<typename, typename>
     friend class Table;
 };
 

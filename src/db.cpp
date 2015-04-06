@@ -11,8 +11,8 @@ DB::Ptr DB::sqlite3(std::string filename) {
     return SQLLIB_SQLITE3_NS_(DB)::connect(filename);
 }
 
-Table<Nil>::Ptr DB::addTable(std::string name) {
-    return Table<Nil>::Ptr(new Table<Nil>(this, name));
+Table<TypeList<Void>, std::tuple<>>::Ptr DB::addTable(std::string name) {
+    return Table<TypeList<Void>, std::tuple<>>::Ptr(new Table<TypeList<Void>, std::tuple<>>(this, name));
 }
 
 #endif

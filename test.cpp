@@ -20,8 +20,4 @@ int main(int argc, char* argv[]) {
         ->addRow<sqlpp::String<>>("name")
         ->addRow<sqlpp::Integer>("age")
         ->create();
-
-    for(std::string row : tbl->getRowNames()) {
-        std::cout << row << std::endl;
-    }
 }

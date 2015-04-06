@@ -7,7 +7,7 @@ project "sqlpp"
 	files { "src/**" }
 	links { "sqlite3" }
 	objdir "build/obj"
-	buildoptions { "-std=c++11" }
+	buildoptions { "-std=c++1y" }
 
 	configuration "debug"
 		flags { "Symbols", "ExtraWarnings" }
