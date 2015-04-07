@@ -57,8 +57,8 @@ struct RowTupleIDExists<Tuple, ID, N, false> {
 
 template<typename Tuple, int N>
 struct RowTupleGetN {
-    static const typename std::tuple_element<N, Tuple>::type* get(Tuple& tuple) {
-        return &std::get<N>(tuple);
+    static const typename std::tuple_element<N, Tuple>::type& get(Tuple& tuple) {
+        return std::get<N>(tuple);
     }
 };
 

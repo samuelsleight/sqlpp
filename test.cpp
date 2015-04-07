@@ -22,10 +22,5 @@ int main(int argc, char* argv[]) {
         ->create();
 
     auto row = tbl->getRow<2>();
-
-    if(row == nullptr) {
-        std::cout << "ERROR D:" << std::endl;
-    } else {
-        std::cout << row->getName() << std::endl;
-    }
+    std::cout << row.getName() << std::endl;
 }

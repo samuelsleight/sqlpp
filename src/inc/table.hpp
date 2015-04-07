@@ -18,10 +18,10 @@ SQLLIB_NS
 
 class DB;
 
-template<typename RowTypeList, typename RowTuple>
-class Table : public std::enable_shared_from_this<Table<RowTypeList, RowTuple>> {
+template<typename RowTuple, typename... RowTypes>
+class Table : public std::enable_shared_from_this<Table<RowTuple, RowTypes...>> {
 public:
-    using Ptr = std::shared_ptr<Table<RowTypeList, RowTuple>>;
+    using Ptr = std::shared_ptr<Table<RowTuple, RowTypes...>>;
 
     template<typename T, int N>
     auto addRow(std::string rowName) const {
@@ -30,8 +30,8 @@ public:
 
         auto newTuple = std::tuple_cat(rows, std::make_tuple(Row<T, N>(rowName)));
 
-        using NewList = typename ListAdd<RowTypeList, T>::list;
-        using NewTable = Table<NewList, decltype(newTuple)>;
+        using NewTuple = decltype(newTuple);
+        using NewTable = Table<NewTuple, RowTypes..., T>;
         using NewPtr = typename NewTable::Ptr;
 
         return NewPtr(new NewTable(db, name, newTuple));
@@ -47,12 +47,12 @@ public:
         return RowTupleGet<RowTuple, N>::get(rows);
     }
 
-    Table<RowTypeList, RowTuple>::Ptr create();
+    Ptr create();
 
 private:
     friend class DB;
 
-    template<typename, typename>
+    template<typename, typename...>
     friend class Table;
 
     DB* db;
@@ -69,8 +69,8 @@ SQLLIB_NS_END
 
 SQLLIB_NS
 
-template<typename RowTypeList, typename RowTuple>
-typename Table<RowTypeList, RowTuple>::Ptr Table<RowTypeList, RowTuple>::create() {
+template<typename RowTuple, typename... RowTypes>
+typename Table<RowTuple, RowTypes...>::Ptr Table<RowTuple, RowTypes...>::create() {
     std::ostringstream str;
     str << "CREATE TABLE " << name << "(";
     str << RowTupleStringer<RowTuple>::string(rows);
@@ -80,7 +80,6 @@ typename Table<RowTypeList, RowTuple>::Ptr Table<RowTypeList, RowTuple>::create(
 
     return this->shared_from_this();
 }
-
 
 SQLLIB_NS_END
 

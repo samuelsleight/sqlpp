@@ -17,7 +17,7 @@
 
 SQLLIB_NS
 
-template<typename, typename>
+template<typename, typename...>
 class Table;
 
 class DB : public std::enable_shared_from_this<DB> {
@@ -30,12 +30,12 @@ public:
     static Ptr sqlite3(std::string filename);
 #endif
 
-    std::shared_ptr<Table<TypeList<Void>, std::tuple<>>> addTable(std::string name);
+    std::shared_ptr<Table<std::tuple<>>> addTable(std::string name);
 
     virtual void executeCreate(std::string sql) = 0;
 
 private:
-    template<typename, typename>
+    template<typename, typename...>
     friend class Table;
 };
 

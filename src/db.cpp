@@ -11,11 +11,11 @@ DB::Ptr DB::sqlite3(std::string filename) {
     return SQLLIB_SQLITE3_NS_(DB)::connect(filename);
 }
 
-Table<TypeList<Void>, std::tuple<>>::Ptr DB::addTable(std::string name) {
-    return Table<TypeList<Void>, std::tuple<>>::Ptr(new Table<TypeList<Void>, std::tuple<>>(this, name));
-}
-
 #endif
+
+Table<std::tuple<>>::Ptr DB::addTable(std::string name) {
+    return Table<std::tuple<>>::Ptr(new Table<std::tuple<>>(this, name));
+}
 
 #ifndef NO_SQLITE3
 
