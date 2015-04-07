@@ -3,6 +3,7 @@
 
 #include "defines.hpp"
 #include "templates.hpp"
+#include "db.hpp"
 
 #include <tuple>
 #include <type_traits>
@@ -90,6 +91,43 @@ struct RowTupleStringer<Tuple, 0> {
         str << std::get<0>(tuple).getName() << " " << std::remove_reference<decltype(std::get<0>(tuple))>::type::Type::sqlType();
 
         return str.str();
+    }
+};
+
+template<typename Tuple, int N = std::tuple_size<Tuple>::value - 1>
+struct RowTupleNames {
+    static std::string string(Tuple& tuple) {
+        std::ostringstream str;
+        str << RowTupleNames<Tuple, N - 1>::string(tuple);
+        str << ", " << std::get<N>(tuple).getName();
+    
+        return str.str();
+    }
+};
+
+template<typename Tuple>
+struct RowTupleNames<Tuple, 0> {
+    static std::string string(Tuple& tuple) {
+        std::ostringstream str;
+        str << std::get<0>(tuple).getName();
+
+        return str.str();
+    }
+};
+
+// Bind
+template<typename Tuple, int N = std::tuple_size<Tuple>::value - 1>
+struct ValueTupleBind {
+    static void bind(SQLLIB_NS_(DB)* db, const Tuple& tuple) {
+        std::get<N>(tuple).bind(db, N + 1);
+        ValueTupleBind<Tuple, N - 1>::bind(db, tuple);
+    }
+};
+
+template<typename Tuple>
+struct ValueTupleBind<Tuple, 0> {
+    static void bind(SQLLIB_NS_(DB)* db, const Tuple& tuple) {
+        std::get<0>(tuple).bind(db, 1);
     }
 };
 

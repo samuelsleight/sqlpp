@@ -21,6 +21,8 @@ int main(int argc, char* argv[]) {
         ->addRow<sqlpp::Integer, 2>("age")
         ->create();
 
-    auto row = tbl->getRow<2>();
-    std::cout << row.getName() << std::endl;
+    tbl->insert()
+        ->values("sam", 20)
+        ->values("bob", 46)
+        ->execute();
 }

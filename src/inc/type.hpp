@@ -8,11 +8,13 @@
 
 SQLLIB_NS
 
+class DB;
+
 class Type {
 public:
-    virtual ~Type();
+    virtual ~Type() {}
 
-    // virtual static std::string sqlType() = 0;
+    virtual void bind(DB* db, int index) const = 0;
 };
 
 SQLLIB_NS_END

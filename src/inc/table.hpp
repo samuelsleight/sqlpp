@@ -5,6 +5,7 @@
 #include "templates.hpp"
 #include "type.hpp"
 #include "row.hpp"
+#include "insert.hpp"
 
 #include <iostream>
 #include <string>
@@ -45,6 +46,10 @@ public:
     auto getRow() {
         static_assert(RowTupleIDExists<RowTuple, N>::value, "row identifier does not exist");
         return RowTupleGet<RowTuple, N>::get(rows);
+    }
+
+    typename Insert<RowTuple, RowTypes...>::Ptr insert() {
+        return typename Insert<RowTuple, RowTypes...>::Ptr(new Insert<RowTuple, RowTypes...>(db, name, rows));
     }
 
     Ptr create();

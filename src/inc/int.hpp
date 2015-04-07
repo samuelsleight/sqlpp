@@ -16,6 +16,10 @@ public:
     static std::string sqlType() {
         return "INTEGER";
     }
+
+    void bind(DB* db, int index) const {
+        db->bindInteger(index, value);
+    }
 };
 
 SQLLIB_NS_END

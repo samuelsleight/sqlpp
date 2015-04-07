@@ -48,6 +48,60 @@ void DB::executeCreate(std::string sql) {
     }
 }
 
+void DB::beginTransaction() {
+    int err = ::sqlite3_exec(db, "BEGIN", nullptr, nullptr, nullptr);
+
+    if(err != SQLITE_OK) {
+        throw err;
+    }
+}
+
+void DB::prepareQuery(std::string sql) {
+    int err = ::sqlite3_prepare(db, sql.c_str(), -1, &stmt, nullptr);
+
+    if(err != SQLITE_OK) {
+        throw err;
+    }
+}
+
+void DB::bindString(int index, std::string value) {
+    int err = ::sqlite3_bind_text(stmt, index, value.c_str(), value.size(), SQLITE_STATIC);
+
+    if(err != SQLITE_OK) {
+        throw err;
+    }
+}
+    
+void DB::bindInteger(int index, int value) {
+    int err = ::sqlite3_bind_int(stmt, index, value);
+
+    if(err != SQLITE_OK) {
+        throw err;
+    }
+}
+
+void DB::executePreparedInsert() {
+    int err = ::sqlite3_step(stmt);
+    
+    if(err != SQLITE_DONE) {
+        throw err;
+    }
+
+    ::sqlite3_reset(stmt);
+}
+
+void DB::cleanPreparedQuery() {
+    ::sqlite3_finalize(stmt);
+}
+
+void DB::commitTransaction() {
+    int err = ::sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr);
+
+    if(err != SQLITE_OK) {
+        throw err;
+    }
+}
+
 SQLLIB_SQLITE3_NS_END
 
 #endif // NO_SQLITE3
