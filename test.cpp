@@ -17,12 +17,14 @@ int main(int argc, char* argv[]) {
     }
 
     auto tbl = db->addTable("test")
-        ->addRow<sqlpp::String<>, 1>("name")
-        ->addRow<sqlpp::Integer, 2>("age")
+        ->addField<sqlpp::String<>, 1>("name")
+        ->addField<sqlpp::Integer, 2>("age")
         ->create();
 
     tbl->insert<2, 1>()
         ->values(20, "sam")
         ->values(17, "lemon")
         ->execute();
+
+    auto rows = tbl->select();
 }

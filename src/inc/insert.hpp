@@ -2,7 +2,7 @@
 #define SQLLIB_INSERT_HPP
 
 #include "defines.hpp"
-#include "row.hpp"
+#include "field.hpp"
 
 #include <iostream>
 #include <string>
@@ -18,13 +18,13 @@ class DB;
 template<typename, typename...>
 class Table;
 
-template<typename RowTuple, typename... RowTypes>
-class Insert : public std::enable_shared_from_this<Insert<RowTuple, RowTypes...>> {
+template<typename FieldTuple, typename... FieldTypes>
+class Insert : public std::enable_shared_from_this<Insert<FieldTuple, FieldTypes...>> {
 public:
-    using Ptr = std::shared_ptr<Insert<RowTuple, RowTypes...>>;
-    using ValueTuple = std::tuple<RowTypes...>;
+    using Ptr = std::shared_ptr<Insert<FieldTuple, FieldTypes...>>;
+    using ValueTuple = std::tuple<FieldTypes...>;
 
-    Ptr values(RowTypes... rowValues) {
+    Ptr values(FieldTypes... rowValues) {
         valueList.push_back(std::make_tuple(rowValues...));
         return this->shared_from_this();
     }
@@ -37,21 +37,21 @@ private:
 
     DB* db;
     std::string table;
-    RowTuple rows;
+    FieldTuple rows;
 
     std::vector<ValueTuple> valueList;
 
-    Insert(DB* db, std::string table, RowTuple rows)
+    Insert(DB* db, std::string table, FieldTuple rows)
         : db(db), table(table), rows(rows) {}
 };
 
-template<typename RowTuple, typename TypeTuple>
+template<typename FieldTuple, typename TypeTuple>
 class InsertFromTuple;
 
-template<typename RowTuple, typename... RowTypes>
-class InsertFromTuple<RowTuple, std::tuple<RowTypes...>> {
+template<typename FieldTuple, typename... FieldTypes>
+class InsertFromTuple<FieldTuple, std::tuple<FieldTypes...>> {
 public:
-    using type = Insert<RowTuple, RowTypes...>;
+    using type = Insert<FieldTuple, FieldTypes...>;
 };
 
 SQLLIB_NS_END
@@ -60,14 +60,14 @@ SQLLIB_NS_END
 
 SQLLIB_NS
 
-template<typename RowTuple, typename... RowTypes>
-void Insert<RowTuple, RowTypes...>::execute() {
+template<typename FieldTuple, typename... FieldTypes>
+void Insert<FieldTuple, FieldTypes...>::execute() {
     std::ostringstream str;
     str << "INSERT INTO " << table << "(";
-    str << RowTupleNames<RowTuple>::string(rows);
+    str << FieldTupleNames<FieldTuple>::string(rows);
     str << ") VALUES(";
 
-    for(int i = 0; i < std::tuple_size<RowTuple>::value; ++i) {
+    for(int i = 0; i < std::tuple_size<FieldTuple>::value; ++i) {
         if(i != 0) {
             str << ", ";
         }

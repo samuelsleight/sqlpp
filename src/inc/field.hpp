@@ -11,7 +11,7 @@
 SQLLIB_NS
 
 template<typename T, int N>
-class Row {
+class Field {
 private:
     std::string name;
     static constexpr int rowid = N;
@@ -19,7 +19,7 @@ private:
 public:
     using Type = T;
 
-    Row(std::string name)
+    Field(std::string name)
         : name(name) {}
 
     std::string getName() const {
