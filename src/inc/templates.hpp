@@ -40,4 +40,25 @@ std::vector<std::string> parseTypeList(TypeList<T>) {
     return { T::sqlType() };
 }
 
+template<bool, typename, typename>
+struct IfElse;
+
+template<typename Then, typename Else>
+struct IfElse<true, Then, Else> {
+    using result = Then;
+};
+
+template<typename Then, typename Else>
+struct IfElse<false, Then, Else> {
+    using result = Else;
+};
+
+template<bool, typename>
+struct If;
+
+template<typename Then>
+struct If<true, Then> {
+    using result = Then;
+};
+
 #endif

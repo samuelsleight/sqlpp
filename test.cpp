@@ -17,7 +17,15 @@ int main(int argc, char* argv[]) {
     }
 
     auto tbl = db->addTable("test")
-        ->addRow<sqlpp::String<>>("name")
-        ->addRow<sqlpp::Integer>("age")
+        ->addRow<sqlpp::String<>, 1>("name")
+        ->addRow<sqlpp::Integer, 2>("age")
         ->create();
+
+    auto row = tbl->getRow<2>();
+
+    if(row == nullptr) {
+        std::cout << "ERROR D:" << std::endl;
+    } else {
+        std::cout << row->getName() << std::endl;
+    }
 }
