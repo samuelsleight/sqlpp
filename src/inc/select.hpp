@@ -2,6 +2,7 @@
 #define SQLLIB_SELECT_HPP
 
 #include "defines.hpp"
+#include "results.hpp"
 
 #include <tuple>
 #include <memory>
@@ -18,17 +19,37 @@ class Select : public std::enable_shared_from_this<Select<FieldTuple, FieldTypes
 public:
     using Ptr = std::shared_ptr<Select<FieldTuple, FieldTypes...>>;
 
+    SelectResult<FieldTuple, FieldTypes...> execute();
+
 private:
     template<typename, typename...>
     friend class Table;
 
     DB* db;
     std::string table;
-    FieldTuple rows;
+    FieldTuple fields;
 
-    Select(DB* db, std::string table, FieldTuple rows)
-        : db(db), table(table), rows(rows) {}
+    Select(DB* db, std::string table, FieldTuple fields)
+        : db(db), table(table), fields(fields) {}
 };
+
+SQLLIB_NS_END
+
+#include "db.hpp"
+
+SQLLIB_NS
+
+template<typename FieldTuple, typename... FieldTypes>
+SelectResult<FieldTuple, FieldTypes...> Select<FieldTuple, FieldTypes...>::execute() {
+    std::ostringstream str;
+    str << "SELECT ";
+    str << FieldTupleNames<FieldTuple>::string(fields);
+    str << " FROM " << table << ";";
+
+    db->prepareQuery(str.str());
+    db->executePreparedSelect();
+    return SelectResult<FieldTuple, FieldTypes...>(db, fields);
+}
 
 SQLLIB_NS_END
 

@@ -27,6 +27,10 @@ public:
         return str.str();
     }
 
+    static std::string getValue(DB* db, int index) {
+        return db->selectStringValue(index);
+    }
+
     void bind(DB* db, int index) const {
         db->bindString(index, value);
     }

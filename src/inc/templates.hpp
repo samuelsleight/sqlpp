@@ -69,6 +69,22 @@ struct FieldTupleGetImpl<Tuple, ID, 0> : public If<ID == std::tuple_element<0, T
 template<typename Tuple, int ID>
 struct FieldTupleGet : public FieldTupleGetImpl<Tuple, ID> {};
 
+
+template<typename Tuple, int ID, int N = std::tuple_size<Tuple>::value - 1>
+struct FieldTupleGetIndexImpl {
+    static const int value = IfElse<ID == std::tuple_element<N, Tuple>::type::getN(), std::integral_constant<int, N>, FieldTupleGetIndexImpl<Tuple, ID, N - 1>>::result::value;
+};
+
+template<typename Tuple, int ID>
+struct FieldTupleGetIndexImpl<Tuple, ID, 0> {
+    static const int value = If<ID == std::tuple_element<0, Tuple>::type::getN(), std::integral_constant<int, 0>>::result::value;
+};
+
+template<typename Tuple, int ID>
+struct FieldTupleGetIndex {
+    static const int value = FieldTupleGetIndexImpl<Tuple, ID>::value;
+};
+
 // Make Field Tuple
 template<typename Tuple, int ID, int... IDs>
 struct MakeFieldTuple {

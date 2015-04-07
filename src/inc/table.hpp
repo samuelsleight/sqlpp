@@ -30,7 +30,7 @@ public:
         static_assert(std::is_base_of<Type, T>::value, "table row type must extend Type");
         static_assert(!FieldTupleIDExists<FieldTuple, N>::value, "row identifier must be unique");
 
-        auto newTuple = std::tuple_cat(rows, std::make_tuple(Field<T, N>(rowName)));
+        auto newTuple = std::tuple_cat(fields, std::make_tuple(Field<T, N>(rowName)));
 
         using NewTuple = decltype(newTuple);
         using NewTable = Table<NewTuple, FieldTypes..., T>;
@@ -46,16 +46,16 @@ public:
     template<int N>
     auto getField() {
         static_assert(FieldTupleIDExists<FieldTuple, N>::value, "row identifier does not exist");
-        return FieldTupleGet<FieldTuple, N>::get(rows);
+        return FieldTupleGet<FieldTuple, N>::get(fields);
     }
 
     typename Insert<FieldTuple, FieldTypes...>::Ptr insert() {
-        return typename Insert<FieldTuple, FieldTypes...>::Ptr(new Insert<FieldTuple, FieldTypes...>(db, name, rows));
+        return typename Insert<FieldTuple, FieldTypes...>::Ptr(new Insert<FieldTuple, FieldTypes...>(db, name, fields));
     }
 
     template<int... FieldIDs>
     auto insert() {
-        auto insertFields = MakeFieldTuple<FieldTuple, FieldIDs...>::make(rows);
+        auto insertFields = MakeFieldTuple<FieldTuple, FieldIDs...>::make(fields);
         using InsertTypes = decltype(MakeTypeTuple<decltype(insertFields)>::make(insertFields));
         using InsertType = typename InsertFromTuple<decltype(insertFields), InsertTypes>::type;
 
@@ -63,7 +63,7 @@ public:
     }
 
     typename Select<FieldTuple, FieldTypes...>::Ptr select() {
-        return typename Select<FieldTuple, FieldTypes...>::Ptr(new Select<FieldTuple, FieldTypes...>(db, name, rows));
+        return typename Select<FieldTuple, FieldTypes...>::Ptr(new Select<FieldTuple, FieldTypes...>(db, name, fields));
     }
 
     Ptr create();
@@ -76,10 +76,10 @@ private:
 
     DB* db;
     std::string name;
-    FieldTuple rows;
+    FieldTuple fields;
 
-    Table(DB* db, std::string name, FieldTuple rows = std::tuple<>())
-        : db(db), name(name), rows(rows) {}
+    Table(DB* db, std::string name, FieldTuple fields = std::tuple<>())
+        : db(db), name(name), fields(fields) {}
 };
 
 SQLLIB_NS_END
@@ -92,7 +92,7 @@ template<typename FieldTuple, typename... FieldTypes>
 typename Table<FieldTuple, FieldTypes...>::Ptr Table<FieldTuple, FieldTypes...>::create() {
     std::ostringstream str;
     str << "CREATE TABLE " << name << "(";
-    str << FieldTupleStringer<FieldTuple>::string(rows);
+    str << FieldTupleStringer<FieldTuple>::string(fields);
     str << ")";
 
     db->executeCreate(str.str());

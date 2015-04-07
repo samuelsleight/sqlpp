@@ -14,7 +14,7 @@ template<typename T, int N>
 class Field {
 private:
     std::string name;
-    static constexpr int rowid = N;
+    static constexpr int fieldid = N;
 
 public:
     using Type = T;
@@ -27,7 +27,7 @@ public:
     }
 
     static constexpr int getN() {
-        return rowid;
+        return fieldid;
     }
 };
 

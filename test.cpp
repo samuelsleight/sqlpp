@@ -26,5 +26,23 @@ int main(int argc, char* argv[]) {
         ->values(17, "lemon")
         ->execute();
 
-    auto rows = tbl->select();
+    {
+        auto rows = tbl->select()->execute();
+        while(rows.next()) {
+            std::cout << rows.get<1>() << ": " << rows.get<2>() << std::endl;
+        }
+    }
+
+    std::cout << std::endl;
+
+    tbl->insert()
+        ->values("steve", 150)
+        ->values("cake", 9)
+        ->values("alicia", 56)
+        ->execute();
+
+    auto rows = tbl->select()->execute();
+    while(rows.next()) {
+        std::cout << rows.get<1>() << ": " << rows.get<2>() << std::endl;
+    }
 }

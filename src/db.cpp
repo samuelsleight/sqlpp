@@ -21,7 +21,8 @@ Table<std::tuple<>>::Ptr DB::addTable(std::string name) {
 
 SQLLIB_SQLITE3_NS
 
-DB::DB() {}
+DB::DB() 
+    : midSelect(false) {}
 
 DB::~DB() {
     ::sqlite3_close(db);
@@ -41,26 +42,32 @@ DB::Ptr DB::connect(std::string filename) {
 }
 
 void DB::executeCreate(std::string sql) {
-    int err = ::sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr);
+    if(!midSelect) {
+        int err = ::sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr);
 
-    if(err != SQLITE_OK) {
-        throw err;
+        if(err != SQLITE_OK) {
+            throw err;
+        }
     }
 }
 
 void DB::beginTransaction() {
-    int err = ::sqlite3_exec(db, "BEGIN", nullptr, nullptr, nullptr);
+    if(!midSelect) {
+        int err = ::sqlite3_exec(db, "BEGIN", nullptr, nullptr, nullptr);
 
-    if(err != SQLITE_OK) {
-        throw err;
+        if(err != SQLITE_OK) {
+            throw err;
+        }
     }
 }
 
 void DB::prepareQuery(std::string sql) {
-    int err = ::sqlite3_prepare(db, sql.c_str(), -1, &stmt, nullptr);
+    if(!midSelect) {
+        int err = ::sqlite3_prepare(db, sql.c_str(), -1, &stmt, nullptr);
 
-    if(err != SQLITE_OK) {
-        throw err;
+        if(err != SQLITE_OK) {
+            throw err;
+        }
     }
 }
 
@@ -81,17 +88,51 @@ void DB::bindInteger(int index, int value) {
 }
 
 void DB::executePreparedInsert() {
-    int err = ::sqlite3_step(stmt);
+    if(!midSelect) {
+        int err = ::sqlite3_step(stmt);
     
-    if(err != SQLITE_DONE) {
-        throw err;
-    }
+        if(err != SQLITE_DONE) {
+            throw err;
+        }
 
-    ::sqlite3_reset(stmt);
+        ::sqlite3_reset(stmt);
+    }
+}
+
+void DB::executePreparedSelect() {
+    midSelect = true;
+}
+
+bool DB::selectNextRow() {
+    if(midSelect) {
+        int err = ::sqlite3_step(stmt);
+
+        if(err == SQLITE_ROW) {
+            return true;
+        }
+
+        if(err == SQLITE_DONE) {
+            return false;
+        }
+
+        throw err;
+    } else {
+        return false;
+    }
+}
+
+std::string DB::selectStringValue(int index) {
+    return std::string(reinterpret_cast<const char*>(::sqlite3_column_text(stmt, index)));
+}
+
+int DB::selectIntegerValue(int index) {
+    return ::sqlite3_column_int(stmt, index);
 }
 
 void DB::cleanPreparedQuery() {
     ::sqlite3_finalize(stmt);
+
+    midSelect = false;
 }
 
 void DB::commitTransaction() {

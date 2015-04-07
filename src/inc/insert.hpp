@@ -37,12 +37,12 @@ private:
 
     DB* db;
     std::string table;
-    FieldTuple rows;
+    FieldTuple fields;
 
     std::vector<ValueTuple> valueList;
 
-    Insert(DB* db, std::string table, FieldTuple rows)
-        : db(db), table(table), rows(rows) {}
+    Insert(DB* db, std::string table, FieldTuple fields)
+        : db(db), table(table), fields(fields) {}
 };
 
 template<typename FieldTuple, typename TypeTuple>
@@ -64,7 +64,7 @@ template<typename FieldTuple, typename... FieldTypes>
 void Insert<FieldTuple, FieldTypes...>::execute() {
     std::ostringstream str;
     str << "INSERT INTO " << table << "(";
-    str << FieldTupleNames<FieldTuple>::string(rows);
+    str << FieldTupleNames<FieldTuple>::string(fields);
     str << ") VALUES(";
 
     for(int i = 0; i < std::tuple_size<FieldTuple>::value; ++i) {

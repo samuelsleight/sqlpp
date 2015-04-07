@@ -18,6 +18,10 @@ public:
         return "INTEGER";
     }
 
+    static int getValue(DB* db, int index) {
+        return db->selectIntegerValue(index);
+    }
+
     void bind(DB* db, int index) const {
         db->bindInteger(index, value);
     }
