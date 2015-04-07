@@ -52,6 +52,15 @@ public:
         return typename Insert<RowTuple, RowTypes...>::Ptr(new Insert<RowTuple, RowTypes...>(db, name, rows));
     }
 
+    template<int... RowIDs>
+    auto insert() {
+        auto insertRows = MakeRowTuple<RowTuple, RowIDs...>::make(rows);
+        using InsertTypes = decltype(MakeTypeTuple<decltype(insertRows)>::make(insertRows));
+        using InsertType = typename InsertFromTuple<decltype(insertRows), InsertTypes>::type;
+
+        return typename InsertType::Ptr(new InsertType(db, name, insertRows));
+    }
+
     Ptr create();
 
 private:

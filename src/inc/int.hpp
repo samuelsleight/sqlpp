@@ -11,6 +11,7 @@ private:
     int value;
 
 public:
+    Integer() {}
     Integer(int value) : value(value) {}
 
     static std::string sqlType() {

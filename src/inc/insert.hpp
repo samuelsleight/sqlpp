@@ -45,6 +45,15 @@ private:
         : db(db), table(table), rows(rows) {}
 };
 
+template<typename RowTuple, typename TypeTuple>
+class InsertFromTuple;
+
+template<typename RowTuple, typename... RowTypes>
+class InsertFromTuple<RowTuple, std::tuple<RowTypes...>> {
+public:
+    using type = Insert<RowTuple, RowTypes...>;
+};
+
 SQLLIB_NS_END
 
 #include "db.hpp"

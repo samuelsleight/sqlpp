@@ -72,6 +72,38 @@ struct RowTupleGetImpl<Tuple, ID, 0> : public If<ID == std::tuple_element<0, Tup
 template<typename Tuple, int ID>
 struct RowTupleGet : public RowTupleGetImpl<Tuple, ID> {};
 
+// Make Row Tuple
+template<typename Tuple, int ID, int... IDs>
+struct MakeRowTuple {
+    static auto make(Tuple& tuple) {
+        auto tmpTuple = std::make_tuple(RowTupleGet<Tuple, ID>::get(tuple));
+        return std::tuple_cat(tmpTuple, MakeRowTuple<Tuple, IDs...>::make(tuple));
+    }
+};
+
+template<typename Tuple, int ID>
+struct MakeRowTuple<Tuple, ID> {
+    static auto make(Tuple& tuple) {
+        return std::make_tuple(RowTupleGet<Tuple, ID>::get(tuple));
+    }
+};
+
+// Make Type Tuple
+template<typename Tuple, int N = std::tuple_size<Tuple>::value - 1>
+struct MakeTypeTuple {
+    static auto make(Tuple& tuple) {
+        auto tmpTuple = std::make_tuple(typename std::remove_reference<decltype(std::get<N>(tuple))>::type::Type());
+        return std::tuple_cat(MakeTypeTuple<Tuple, N - 1>::make(tuple), tmpTuple);
+    }
+};
+                        
+template<typename Tuple>
+struct MakeTypeTuple<Tuple, 0> {
+    static auto make(Tuple& tuple) {
+        return std::make_tuple(typename std::remove_reference<decltype(std::get<0>(tuple))>::type::Type());
+    }
+};
+
 // Stringify
 template<typename Tuple, int N = std::tuple_size<Tuple>::value - 1>
 struct RowTupleStringer {

@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
         ->addRow<sqlpp::Integer, 2>("age")
         ->create();
 
-    tbl->insert()
-        ->values("sam", 20)
-        ->values("bob", 46)
+    tbl->insert<2, 1>()
+        ->values(20, "sam")
+        ->values(17, "lemon")
         ->execute();
 }

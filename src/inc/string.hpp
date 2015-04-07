@@ -16,6 +16,7 @@ private:
     std::string value;
 
 public:
+    String() {}
     String(std::string value) : value(value) {}
     String(const char* value) : value(value) {}
     String(char* value) : value(value) {}
