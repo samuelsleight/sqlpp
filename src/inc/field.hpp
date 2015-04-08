@@ -10,24 +10,33 @@
 
 SQLLIB_NS
 
-template<typename T, int N>
+template<typename T, int N, int TID>
 class Field {
 private:
-    std::string name;
+    std::string tableName, name;
     static constexpr int fieldid = N;
+    static constexpr int tableid = TID;
 
 public:
     using Type = T;
 
-    Field(std::string name)
-        : name(name) {}
+    Field(std::string tableName, std::string name)
+        : tableName(tableName), name(name) {}
 
     std::string getName() const {
         return name;
     }
 
+    std::string getTableName() const {
+        return tableName;
+    }
+
     static constexpr int getN() {
         return fieldid;
+    }
+
+    static constexpr int getTID() {
+        return tableid;
     }
 };
 

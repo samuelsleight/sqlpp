@@ -5,10 +5,10 @@
 
 SQLLIB_NS
 
-template<typename, typename... FieldTypes>
+template<typename>
 class Select;
 
-template<typename FieldTuple, typename... FieldTypes>
+template<typename FieldTuple>
 class SelectResult {
 public:
     bool next();
@@ -25,7 +25,7 @@ public:
     void close();
 
 private:
-    friend class Select<FieldTuple, FieldTypes...>;
+    friend class Select<FieldTuple>;
 
     DB* db;
     FieldTuple fields;
@@ -42,13 +42,13 @@ SQLLIB_NS_END
 
 SQLLIB_NS
 
-template<typename FieldTuple, typename... FieldTypes>
-bool SelectResult<FieldTuple, FieldTypes...>::next() {
+template<typename FieldTuple>
+bool SelectResult<FieldTuple>::next() {
     return db->selectNextRow();
 }
 
-template<typename FieldTuple, typename... FieldTypes>
-void SelectResult<FieldTuple, FieldTypes...>::close() {
+template<typename FieldTuple>
+void SelectResult<FieldTuple>::close() {
     if(!closed) {
         db->cleanPreparedQuery();
         closed = true;

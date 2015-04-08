@@ -12,24 +12,26 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <tuple>
 #include <memory>
 
 SQLLIB_NS
 
-template<typename, typename, typename...>
+template<int, typename, typename, typename>
 class Table;
 
 template<typename, typename...>
 class Insert;
 
-template<typename, typename...>
+template<typename>
 class Select;
 
-template<typename, typename...>
+template<typename>
 class SelectResult;
 
-using TableT = Table<std::tuple<>, NoKey>;
+template<int ID>
+using TableT = Table<ID, std::tuple<>, NoKey, std::tuple<>>;
 
 class DB : public std::enable_shared_from_this<DB> {
 public:
@@ -41,7 +43,8 @@ public:
     static Ptr sqlite3(std::string filename);
 #endif
 
-    std::shared_ptr<TableT> addTable(std::string name);
+    template<int ID>
+    std::shared_ptr<TableT<ID>> addTable(std::string name);
 
     virtual void bindString(int index, std::string value) = 0;
     virtual void bindInteger(int index, int value) = 0;
@@ -49,18 +52,22 @@ public:
     virtual std::string selectStringValue(int index) = 0;
     virtual int selectIntegerValue(int index) = 0;
 
+    std::string getTableName(int id);
+
 protected:
-    template<typename, typename, typename...>
+    template<int, typename, typename, typename>
     friend class Table;
 
     template<typename, typename...>
     friend class Insert;
 
-    template<typename, typename...>
+    template<typename>
     friend class Select;
 
-    template<typename, typename...>
+    template<typename>
     friend class SelectResult;
+
+    std::map<int, std::string> tableNames;
 
     virtual void executeCreate(std::string sql) = 0;
 
@@ -75,6 +82,20 @@ protected:
     virtual void cleanPreparedQuery() = 0;
     virtual void commitTransaction() = 0;
 };
+
+SQLLIB_NS_END
+
+#include "table.hpp"
+
+SQLLIB_NS
+
+template<int ID>
+std::shared_ptr<TableT<ID>> DB::addTable(std::string name) {
+    tableNames[ID] = name;
+
+    return typename TableT<ID>::Ptr(new TableT<ID>(this, name));
+}
+
 
 #ifndef NO_SQLITE3
 

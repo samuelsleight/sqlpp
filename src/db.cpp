@@ -13,8 +13,8 @@ DB::Ptr DB::sqlite3(std::string filename) {
 
 #endif
 
-TableT::Ptr DB::addTable(std::string name) {
-    return TableT::Ptr(new TableT(this, name));
+std::string DB::getTableName(int id) {
+    return tableNames[id];
 }
 
 #ifndef NO_SQLITE3

@@ -11,6 +11,28 @@ struct NoKey {};
 template<int... IDs>
 struct PrimaryKey {};
 
+template<typename Tuple1, typename Tuple2>
+struct ForeignKey {
+    using T1 = Tuple1;
+    using T2 = Tuple2;
+};
+
+template<typename... FKeys>
+struct ForeignKeys {};
+
+template<typename, typename>
+struct AddKey;
+
+template<typename T1, typename T2>
+struct AddKey<NoKey, ForeignKey<T1, T2>> {
+    using type = ForeignKeys<ForeignKey<T1, T2>>;
+};
+
+template<typename... FKeys, typename T1, typename T2>
+struct AddKey<ForeignKeys<FKeys...>, ForeignKey<T1, T2>> {
+    using type = ForeignKeys<FKeys..., ForeignKey<T1, T2>>;
+};
+
 // Conditionals
 template<bool, typename, typename>
 struct IfElse;
@@ -31,6 +53,17 @@ struct If;
 template<typename Then>
 struct If<true, Then> {
     using result = Then;
+};
+
+// Check Field Types
+template<typename Tuple1, typename Tuple2, int N = std::tuple_size<Tuple1>::value - 1>
+struct FieldTypesMatch {
+    static constexpr bool value = std::is_same<typename std::tuple_element<N, Tuple1>::type::Type, typename std::tuple_element<N, Tuple2>::type::Type>::value && FieldTypesMatch<Tuple1, Tuple2, N - 1>::value;
+};
+
+template<typename Tuple1, typename Tuple2>
+struct FieldTypesMatch<Tuple1, Tuple2, 0> {
+    static constexpr bool value = std::is_same<typename std::tuple_element<0, Tuple1>::type::Type, typename std::tuple_element<0, Tuple2>::type::Type>::value;
 };
 
 // Check ID Exists
@@ -190,7 +223,62 @@ struct PrimaryKeyStringer<Tuple, PrimaryKey<IDs...>> {
     }
 };
 
-#include "db.hpp"
+// Foreign Key Stringify
+template<typename P>
+struct ForeignKeyStringer2 {
+    static std::string string(P& pair) {
+        std::ostringstream str;
+        str << ", FOREIGN KEY (";
+        str << FieldTupleNames<typename std::tuple_element<0, P>::type>::string(std::get<0>(pair));
+        str << ") REFERENCES " << std::get<0>(std::get<1>(pair)).getTableName() << " (";
+        str << FieldTupleNames<typename std::tuple_element<1, P>::type>::string(std::get<1>(pair));
+        str << ")";
+        return str.str();
+    }
+};
+
+template<typename FKeys, int N = std::tuple_size<FKeys>::value>
+struct ForeignKeyStringerImpl {
+    static std::string string(FKeys& tuple) {
+        std::ostringstream str;
+        str << ForeignKeyStringer2<typename std::tuple_element<N - 1, FKeys>::type>::string(std::get<N - 1>(tuple));
+        str << ForeignKeyStringerImpl<FKeys, N - 1>::string(tuple);
+        return str.str();
+    }
+};
+
+template<typename FKeys>
+struct ForeignKeyStringerImpl<FKeys, 1> {
+    static std::string string(FKeys& tuple) {
+        std::ostringstream str;
+        str << ForeignKeyStringer2<typename std::tuple_element<0, FKeys>::type>::string(std::get<0>(tuple));
+        return str.str();
+    }
+};
+
+template<typename FKeys>
+struct ForeignKeyStringerImpl<FKeys, 0> {
+    static std::string string(FKeys& tuple) {
+        return "";
+    }
+};
+
+template<typename FKeys, bool b = (std::tuple_size<FKeys>::value > 0)>
+struct ForeignKeyStringer;
+
+template<typename FKeys>
+struct ForeignKeyStringer<FKeys, true> {
+    static std::string string(FKeys& tuple) {
+        return ForeignKeyStringerImpl<FKeys>::string(tuple);
+    }
+};
+
+template<typename FKeys>
+struct ForeignKeyStringer<FKeys, false> {
+    static std::string string(FKeys& tuple) {
+        return "";
+    }
+};
 
 // Bind
 template<typename Tuple, int N = std::tuple_size<Tuple>::value - 1>

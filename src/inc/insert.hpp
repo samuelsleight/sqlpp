@@ -15,7 +15,7 @@ SQLLIB_NS
 
 class DB;
 
-template<typename, typename, typename...>
+template<int, typename, typename, typename>
 class Table;
 
 template<typename FieldTuple, typename... FieldTypes>
@@ -24,15 +24,15 @@ public:
     using Ptr = std::shared_ptr<Insert<FieldTuple, FieldTypes...>>;
     using ValueTuple = std::tuple<FieldTypes...>;
 
-    Ptr values(FieldTypes... rowValues) {
-        valueList.push_back(std::make_tuple(rowValues...));
+    Ptr values(FieldTypes... fieldValues) {
+        valueList.push_back(std::make_tuple(fieldValues...));
         return this->shared_from_this();
     }
 
     void execute();
 
 private:
-    template<typename, typename, typename...>
+    template<int, typename, typename, typename>
     friend class Table;
 
     DB* db;

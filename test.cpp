@@ -16,19 +16,30 @@ int main(int argc, char* argv[]) {
         std::cout << "YAY!" << std::endl;
     }
 
-    auto tbl = db->addTable("test")
-        ->addField<sqlpp::String<>, 1>("name")
+    auto people = db->addTable<0>("people")
+        ->addField<sqlpp::Integer, 0>("id")
+        ->addField<sqlpp::String<10>, 1>("name")
         ->addField<sqlpp::Integer, 2>("age")
-        ->setPrimaryKey<1, 2>()
+        ->setPrimaryKey<1>()
         ->create();
 
-    tbl->insert<2, 1>()
-        ->values(20, "sam")
-        ->values(17, "lemon")
+    auto cakes = db->addTable<1>("cakes")
+        ->addField<sqlpp::Integer, 0>("id")
+        ->addField<sqlpp::Integer, 1>("pid")
+        ->addField<sqlpp::String<10>, 2>("size")
+        ->setPrimaryKey<0>()
+        ->addForeignKey<1>(people->fields<0>())
+        ->create();
+
+    people->insert<0, 1, 2>()
+        ->values(0, "sam", 20)
+        ->values(1, "bob", 46)
         ->execute();
 
-    auto rows = tbl->select()->execute();
-    while(rows.next()) {
-        std::cout << rows.get<1>() << ": " << rows.get<2>() << std::endl;
-    }
+    cakes->insert()
+        ->values(0, 0, "big")
+        ->values(1, 0, "big")
+        ->values(2, 0, "small")
+        ->values(3, 1, "medium")
+        ->execute();
 }

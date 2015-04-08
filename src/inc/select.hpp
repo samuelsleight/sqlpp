@@ -11,18 +11,18 @@ SQLLIB_NS
 
 class DB;
 
-template<typename, typename, typename...>
+template<int, typename, typename, typename>
 class Table;
 
-template<typename FieldTuple, typename... FieldTypes>
-class Select : public std::enable_shared_from_this<Select<FieldTuple, FieldTypes...>> {
+template<typename FieldTuple>
+class Select : public std::enable_shared_from_this<Select<FieldTuple>> {
 public:
-    using Ptr = std::shared_ptr<Select<FieldTuple, FieldTypes...>>;
+    using Ptr = std::shared_ptr<Select<FieldTuple>>;
 
-    SelectResult<FieldTuple, FieldTypes...> execute();
+    SelectResult<FieldTuple> execute();
 
 private:
-    template<typename, typename, typename...>
+    template<int, typename, typename, typename>
     friend class Table;
 
     DB* db;
@@ -39,8 +39,8 @@ SQLLIB_NS_END
 
 SQLLIB_NS
 
-template<typename FieldTuple, typename... FieldTypes>
-SelectResult<FieldTuple, FieldTypes...> Select<FieldTuple, FieldTypes...>::execute() {
+template<typename FieldTuple>
+SelectResult<FieldTuple> Select<FieldTuple>::execute() {
     std::ostringstream str;
     str << "SELECT ";
     str << FieldTupleNames<FieldTuple>::string(fields);
@@ -48,7 +48,7 @@ SelectResult<FieldTuple, FieldTypes...> Select<FieldTuple, FieldTypes...>::execu
 
     db->prepareQuery(str.str());
     db->executePreparedSelect();
-    return SelectResult<FieldTuple, FieldTypes...>(db, fields);
+    return SelectResult<FieldTuple>(db, fields);
 }
 
 SQLLIB_NS_END
