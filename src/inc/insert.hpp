@@ -15,7 +15,7 @@ SQLLIB_NS
 
 class DB;
 
-template<typename, typename...>
+template<typename, typename, typename...>
 class Table;
 
 template<typename FieldTuple, typename... FieldTypes>
@@ -32,7 +32,7 @@ public:
     void execute();
 
 private:
-    template<typename, typename...>
+    template<typename, typename, typename...>
     friend class Table;
 
     DB* db;

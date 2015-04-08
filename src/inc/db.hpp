@@ -17,7 +17,7 @@
 
 SQLLIB_NS
 
-template<typename, typename...>
+template<typename, typename, typename...>
 class Table;
 
 template<typename, typename...>
@@ -29,6 +29,8 @@ class Select;
 template<typename, typename...>
 class SelectResult;
 
+using TableT = Table<std::tuple<>, NoKey>;
+
 class DB : public std::enable_shared_from_this<DB> {
 public:
     using Ptr = std::shared_ptr<DB>;
@@ -39,7 +41,7 @@ public:
     static Ptr sqlite3(std::string filename);
 #endif
 
-    std::shared_ptr<Table<std::tuple<>>> addTable(std::string name);
+    std::shared_ptr<TableT> addTable(std::string name);
 
     virtual void bindString(int index, std::string value) = 0;
     virtual void bindInteger(int index, int value) = 0;
@@ -48,7 +50,7 @@ public:
     virtual int selectIntegerValue(int index) = 0;
 
 protected:
-    template<typename, typename...>
+    template<typename, typename, typename...>
     friend class Table;
 
     template<typename, typename...>

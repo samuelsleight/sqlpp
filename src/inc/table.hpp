@@ -20,10 +20,10 @@ SQLLIB_NS
 
 class DB;
 
-template<typename FieldTuple, typename... FieldTypes>
-class Table : public std::enable_shared_from_this<Table<FieldTuple, FieldTypes...>> {
+template<typename FieldTuple, typename PrimKey, typename... FieldTypes>
+class Table : public std::enable_shared_from_this<Table<FieldTuple, PrimKey, FieldTypes...>> {
 public:
-    using Ptr = std::shared_ptr<Table<FieldTuple, FieldTypes...>>;
+    using Ptr = std::shared_ptr<Table<FieldTuple, PrimKey, FieldTypes...>>;
 
     template<typename T, int N>
     auto addField(std::string rowName) const {
@@ -33,20 +33,29 @@ public:
         auto newTuple = std::tuple_cat(fields, std::make_tuple(Field<T, N>(rowName)));
 
         using NewTuple = decltype(newTuple);
-        using NewTable = Table<NewTuple, FieldTypes..., T>;
+        using NewTable = Table<NewTuple, PrimKey, FieldTypes..., T>;
         using NewPtr = typename NewTable::Ptr;
 
         return NewPtr(new NewTable(db, name, newTuple));
+    }
+
+    template<int... IDs>
+    auto setPrimaryKey() const {
+        using Key = PrimaryKey<IDs...>;
+        using NewTable = Table<FieldTuple, Key, FieldTypes...>;
+        using NewPtr = typename NewTable::Ptr;
+
+        return NewPtr(new NewTable(db, name, fields));
     }
 
     const std::string getName() const {
         return name;
     }
 
-    template<int N>
+    template<int ID>
     auto getField() {
-        static_assert(FieldTupleIDExists<FieldTuple, N>::value, "row identifier does not exist");
-        return FieldTupleGet<FieldTuple, N>::get(fields);
+        static_assert(FieldTupleIDExists<FieldTuple, ID>::value, "row identifier does not exist");
+        return FieldTupleGet<FieldTuple, ID>::get(fields);
     }
 
     typename Insert<FieldTuple, FieldTypes...>::Ptr insert() {
@@ -71,7 +80,7 @@ public:
 private:
     friend class DB;
 
-    template<typename, typename...>
+    template<typename, typename, typename...>
     friend class Table;
 
     DB* db;
@@ -88,11 +97,14 @@ SQLLIB_NS_END
 
 SQLLIB_NS
 
-template<typename FieldTuple, typename... FieldTypes>
-typename Table<FieldTuple, FieldTypes...>::Ptr Table<FieldTuple, FieldTypes...>::create() {
+template<typename FieldTuple, typename PrimKey, typename... FieldTypes>
+typename Table<FieldTuple, PrimKey, FieldTypes...>::Ptr Table<FieldTuple, PrimKey, FieldTypes...>::create() {
     std::ostringstream str;
     str << "CREATE TABLE " << name << "(";
     str << FieldTupleStringer<FieldTuple>::string(fields);
+
+    str << PrimaryKeyStringer<FieldTuple, PrimKey>::string(fields);
+
     str << ")";
 
     db->executeCreate(str.str());

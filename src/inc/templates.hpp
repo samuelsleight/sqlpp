@@ -6,6 +6,11 @@
 #include <tuple>
 #include <vector>
 
+struct NoKey {};
+
+template<int... IDs>
+struct PrimaryKey {};
+
 // Conditionals
 template<bool, typename, typename>
 struct IfElse;
@@ -155,6 +160,31 @@ struct FieldTupleNames<Tuple, 0> {
     static std::string string(Tuple& tuple) {
         std::ostringstream str;
         str << std::get<0>(tuple).getName();
+
+        return str.str();
+    }
+};
+
+// Primary Key Stringify
+template<typename, typename>
+struct PrimaryKeyStringer;
+
+template<typename Tuple>
+struct PrimaryKeyStringer<Tuple, NoKey> {
+    static std::string string(Tuple& tuple) {
+        return "";
+    }
+};
+
+template<typename Tuple, int... IDs>
+struct PrimaryKeyStringer<Tuple, PrimaryKey<IDs...>> {
+    static std::string string(Tuple& tuple) {
+        auto keyFields = MakeFieldTuple<Tuple, IDs...>::make(tuple);
+        
+        std::ostringstream str;
+        str << ", PRIMARY KEY (";
+        str << FieldTupleNames<decltype(keyFields)>::string(keyFields);
+        str << ")";
 
         return str.str();
     }

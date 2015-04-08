@@ -19,26 +19,12 @@ int main(int argc, char* argv[]) {
     auto tbl = db->addTable("test")
         ->addField<sqlpp::String<>, 1>("name")
         ->addField<sqlpp::Integer, 2>("age")
+        ->setPrimaryKey<1, 2>()
         ->create();
 
     tbl->insert<2, 1>()
         ->values(20, "sam")
         ->values(17, "lemon")
-        ->execute();
-
-    {
-        auto rows = tbl->select()->execute();
-        while(rows.next()) {
-            std::cout << rows.get<1>() << ": " << rows.get<2>() << std::endl;
-        }
-    }
-
-    std::cout << std::endl;
-
-    tbl->insert()
-        ->values("steve", 150)
-        ->values("cake", 9)
-        ->values("alicia", 56)
         ->execute();
 
     auto rows = tbl->select()->execute();
