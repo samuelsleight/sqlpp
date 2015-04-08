@@ -42,4 +42,8 @@ int main(int argc, char* argv[]) {
         ->values(2, 0, "small")
         ->values(3, 1, "medium")
         ->execute();
+
+    cakes->select<1, 2>()->execute([](auto pid, auto size) {
+        std::cout << size.value() << " cake for " << pid.value() << std::endl;
+    });
 }

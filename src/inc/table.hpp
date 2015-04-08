@@ -91,8 +91,20 @@ public:
         return typename InsertType::Ptr(new InsertType(db, name, insertFields));
     }
 
-    typename Select<FieldTuple>::Ptr select() {
-        return typename Select<FieldTuple>::Ptr(new Select<FieldTuple>(db, name, fieldTuple));
+    auto select() {
+        using SelectTypes = decltype(MakeTypeTuple<FieldTuple>::make(fieldTuple));
+        using SelectType = typename SelectFromTuple<FieldTuple, SelectTypes>::type;
+
+        return typename SelectType::Ptr(new SelectType(db, name, fieldTuple));
+    }
+
+    template<int... FieldIDs>
+    auto select() {
+        auto selectFields = MakeFieldTuple<FieldTuple, FieldIDs...>::make(fieldTuple);
+        using SelectTypes = decltype(MakeTypeTuple<decltype(selectFields)>::make(selectFields));
+        using SelectType = typename SelectFromTuple<decltype(selectFields), SelectTypes>::type;
+
+        return typename SelectType::Ptr(new SelectType(db, name, selectFields));
     }
 
     Ptr create(bool ifNotExists = true);

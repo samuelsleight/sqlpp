@@ -13,13 +13,13 @@ SQLLIB_NS
 template<int N = 255>
 class String : public Type {
 private:
-    std::string value;
+    std::string val;
 
 public:
     String() {}
-    String(std::string value) : value(value) {}
-    String(const char* value) : value(value) {}
-    String(char* value) : value(value) {}
+    String(std::string val) : val(val) {}
+    String(const char* val) : val(val) {}
+    String(char* val) : val(val) {}
 
     static std::string sqlType() {
         std::ostringstream str;
@@ -27,12 +27,16 @@ public:
         return str.str();
     }
 
-    static std::string getValue(DB* db, int index) {
-        return db->selectStringValue(index);
+    static String<N> getValue(DB* db, int index) {
+        return String<N>(db->selectStringValue(index));
+    }
+
+    std::string value() {
+        return val;
     }
 
     void bind(DB* db, int index) const {
-        db->bindString(index, value);
+        db->bindString(index, val);
     }
 };
 

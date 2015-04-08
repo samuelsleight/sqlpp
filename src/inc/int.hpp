@@ -8,22 +8,26 @@ SQLLIB_NS
 
 class Integer : public Type {
 private:
-    int value;
+    int val;
 
 public:
     Integer() {}
-    Integer(int value) : value(value) {}
+    Integer(int val) : val(val) {}
 
     static std::string sqlType() {
         return "INTEGER";
     }
 
-    static int getValue(DB* db, int index) {
-        return db->selectIntegerValue(index);
+    static Integer getValue(DB* db, int index) {
+        return Integer(db->selectIntegerValue(index));
+    }
+
+    int value() {
+        return val;
     }
 
     void bind(DB* db, int index) const {
-        db->bindInteger(index, value);
+        db->bindInteger(index, val);
     }
 };
 

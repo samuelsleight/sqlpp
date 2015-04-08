@@ -24,10 +24,10 @@ class Table;
 template<typename, typename...>
 class Insert;
 
-template<typename>
+template<typename, typename...>
 class Select;
 
-template<typename>
+template<typename, typename...>
 class SelectResult;
 
 template<int ID>
@@ -61,10 +61,10 @@ protected:
     template<typename, typename...>
     friend class Insert;
 
-    template<typename>
+    template<typename, typename...>
     friend class Select;
 
-    template<typename>
+    template<typename, typename...>
     friend class SelectResult;
 
     std::map<int, std::string> tableNames;
