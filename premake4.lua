@@ -4,7 +4,7 @@ solution "WorldGenLib"
 project "sqlpp"
 	kind "SharedLib"
 	language "C++"
-	files { "src/**" }
+	files { "new/**" }
 	links { "sqlite3" }
 	objdir "build/obj"
 	buildoptions { "-std=c++1y" }
