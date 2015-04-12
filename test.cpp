@@ -1,5 +1,5 @@
-#include "new/db.hpp"
-#include "new/connection.hpp"
+#include "src/db.hpp"
+#include "src/connection.hpp"
 
 #include <exception>
 
