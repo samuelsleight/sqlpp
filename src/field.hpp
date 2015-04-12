@@ -11,6 +11,8 @@ class Table;
 template<int ID, typename Type>
 class Field {
 public:
+    Field() = default;
+
     static constexpr int getID();
     std::string getName();
 

@@ -2,6 +2,7 @@
 #define SQLLIB_CONNECTION_HPP
 
 #include "defines.hpp"
+#include "statement.hpp"
 
 #include <memory>
 
@@ -20,6 +21,9 @@ SQLLIB_SQLITE3_NS_END
 template<typename...>
 class Create;
 
+template<typename, typename>
+class Insert;
+
 class Connection {
 public:
     virtual ~Connection();
@@ -32,8 +36,11 @@ private:
     template<typename...>
     friend class Create;
 
-    virtual void execute(std::string sql) = 0;
+    template<typename, typename>
+    friend class Insert;
 
+    virtual void execute(std::string sql) = 0;
+    virtual std::shared_ptr<Statement> prepareSQL(std::string sql) = 0;
 };
 
 #ifndef SQLLIB_NO_SQLITE3
@@ -53,6 +60,7 @@ private:
     SQLite3Connection(std::string dbfile);
 
     void execute(std::string sql) override;
+    std::shared_ptr<SQLLIB_NS_(Statement)> prepareSQL(std::string sql);
 };
 
 SQLLIB_SQLITE3_NS_END

@@ -14,6 +14,9 @@ class EmptyDB;
 template<int, typename...>
 class DB;
 
+template<typename...>
+class TableSet;
+
 template<int ID, typename... FieldTypes>
 class Table {
 public:
@@ -24,6 +27,9 @@ public:
     std::string getName();
 
     std::string getCreateSQL(bool ine = true);
+
+    template<int... IDs>
+    auto fields();
 
 private:
     friend class EmptyDB;

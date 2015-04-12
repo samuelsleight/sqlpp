@@ -19,7 +19,7 @@ std::string Field<ID, Type>::getName() {
 
 template<int ID, typename Type>
 std::string Field<ID, Type>::getDefinition() {
-    return name;
+    return name + " " + Type::getSQLType();
 }
 
 SQLLIB_NS_END

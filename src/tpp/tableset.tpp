@@ -1,7 +1,9 @@
 #ifndef SQLLIB_TABLESET_TPP
 #define SQLLIB_TABLESET_TPP
 
+#include "../table.hpp"
 #include "../create.hpp"
+#include "../insert.hpp"
 
 SQLLIB_NS
 
@@ -29,8 +31,15 @@ auto TableSetImpl<TableTypes...>::create(bool ine) {
 };
 
 template<typename TableType>
+template<int... FieldIDs>
 auto TableSet<TableType>::insert() {
+    TableType table = std::get<0>(this->tableTuple);
+    auto fieldTuple = table.template fields<FieldIDs...>();
 
+    using NewInsert = Insert<TableType, decltype(fieldTuple)>;
+    using NewPtr = typename NewInsert::Ptr;
+
+    return NewPtr(new NewInsert(table, fieldTuple));
 };
 
 template<typename... TableTypes>

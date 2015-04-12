@@ -35,6 +35,12 @@ std::string Table<ID, FieldTypes...>::getCreateSQL(bool ine) {
 }
 
 template<int ID, typename... FieldTypes>
+template<int... IDs>
+auto Table<ID, FieldTypes...>::fields() {
+    return TupleFromIDs<FieldTuple, List<IDs...>>::make(fieldTuple);
+}
+
+template<int ID, typename... FieldTypes>
 template<int FieldID, typename FieldType>
 auto Table<ID, FieldTypes...>::addField(std::string name) {
     auto field = Field<FieldID, FieldType>(name);

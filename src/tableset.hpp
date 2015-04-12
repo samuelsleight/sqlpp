@@ -46,6 +46,7 @@ class TableSet<TableType> : public TableSetImpl<TableType> {
 public:
     using Ptr = std::shared_ptr<TableSet<TableType>>;
 
+    template<int... FieldIDs>
     auto insert();
 
 private:

@@ -109,11 +109,38 @@ struct TupleFold<Tuple, T, F, 1> {
     }
 };
 
+// TupleForEach
+template<typename Tuple, typename F, int N = std::tuple_size<Tuple>::value>
+struct TupleForEach {
+    static void foreach(Tuple& tuple, F func) {
+        func(std::get<N - 1>(tuple));
+        TupleForEach<Tuple, F, N - 1>::foreach(tuple, func);
+    }
+};
+
+template<typename Tuple, typename F>
+struct TupleForEach<Tuple, F, 1> {
+    static void foreach(Tuple& tuple, F func) {
+        func(std::get<0>(tuple));
+    }
+};
+
+// ValueTypeOf
+template<typename T>
+struct ValueTypeOf {
+    using Type = typename T::ValueType;
+};
+
 SQLLIB_NS
 
 template<typename Tuple, typename T, typename F>
 T tupleFold(Tuple& tuple, T acc, F func) {
     return TupleFold<Tuple, T, F>::fold(tuple, acc, func);
+}
+
+template<typename Tuple, typename F>
+void tupleForEach(Tuple& tuple, F func) {
+    TupleForEach<Tuple, F>::foreach(tuple, func);
 }
 
 SQLLIB_NS_END
