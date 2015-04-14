@@ -2,6 +2,11 @@
 #define SQLLIB_TEMPLATES_HPP
 
 #include "defines.hpp"
+#include "where.hpp"
+
+#include <tuple>
+#include <string>
+#include <sstream>
 
 SQLLIB_NS
 

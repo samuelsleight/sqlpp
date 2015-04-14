@@ -1,8 +1,6 @@
 #ifndef SQLLIB_TEMPLATES_TPP
 #define SQLLIB_TEMPLATES_TPP
 
-#include <tuple>
-
 template<int...>
 struct List {};
 
@@ -129,6 +127,82 @@ struct TupleForEach<Tuple, F, 1> {
 template<typename T>
 struct ValueTypeOf {
     using Type = typename T::ValueType;
+};
+
+// SelectFields
+template<typename TableTuple, int... Ns>
+struct SelectFields;
+
+template<typename TableTuple, int Index, int Field, int... Ns>
+struct SelectFields<TableTuple, Index, Field, Ns...> {
+    static std::string write(TableTuple& tuple) {
+        std::ostringstream str;
+
+        str << "t" << Index << ".";
+        str << std::get<Index>(tuple).template field<Field>().getName();
+        str << ", ";
+        str << SelectFields<TableTuple, Ns...>::write(tuple);
+
+        return str.str();
+    }
+};
+
+template<typename TableTuple, int Index, int Field>
+struct SelectFields<TableTuple, Index, Field> {
+    static std::string write(TableTuple& tuple) {
+        std::ostringstream str;
+
+        str << "t" << Index << ".";
+        str << std::get<Index>(tuple).template field<Field>().getName();
+
+        return str.str();
+    }
+};
+
+// WriteWhere
+template<typename, typename>
+struct WriteWhere;
+
+// WriteWhere<And>
+template<typename TableTuple, typename T, typename... Ts>
+struct WriteWhere<TableTuple, SQLLIB_NS_(And)<T, Ts...>> {
+    static std::string write(TableTuple& tuple) {
+        std::ostringstream str;
+
+        str << "(";
+        str << WriteWhere<TableTuple, T>::write(tuple);
+        str << ") AND ";
+        str << WriteWhere<TableTuple, SQLLIB_NS_(And)<Ts...>>::write(tuple);
+
+        return str.str();
+    }
+};
+
+template<typename TableTuple, typename T>
+struct WriteWhere<TableTuple, SQLLIB_NS_(And)<T>> {
+    static std::string write(TableTuple& tuple) {
+        std::ostringstream str;
+
+        str << "(";
+        str << WriteWhere<TableTuple, T>::write(tuple);
+        str << ")";
+
+        return str.str();
+    }
+};
+
+template<typename TableTuple, int I1, int F1, int I2, int F2>
+struct WriteWhere<TableTuple, SQLLIB_NS_(Eq)<I1, F1, I2, F2>> {
+    static std::string write(TableTuple& tuple) {
+        std::ostringstream str;
+
+        str << "t" << std::to_string(I1) << ".";
+        str << std::get<I1>(tuple).template field<F1>().getName();
+        str << " = t" << std::to_string(I2) << ".";
+        str << std::get<I2>(tuple).template field<F2>().getName();
+
+        return str.str();
+    }
 };
 
 SQLLIB_NS

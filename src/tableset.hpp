@@ -20,6 +20,9 @@ public:
 
     auto create(bool ine = true);
 
+    template<int Index, int FieldID>
+    auto select();
+
 protected:
     template<int, typename...>
     friend class DB;

@@ -31,6 +31,9 @@ public:
     template<int... IDs>
     auto fields();
 
+    template<int FID>
+    auto field();
+
 private:
     friend class EmptyDB;
 

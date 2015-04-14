@@ -41,6 +41,12 @@ auto Table<ID, FieldTypes...>::fields() {
 }
 
 template<int ID, typename... FieldTypes>
+template<int FID>
+auto Table<ID, FieldTypes...>::field() {
+    return std::get<IndexFromID<FieldTuple, FID>::value>(fieldTuple);
+}
+
+template<int ID, typename... FieldTypes>
 template<int FieldID, typename FieldType>
 auto Table<ID, FieldTypes...>::addField(std::string name) {
     auto field = Field<FieldID, FieldType>(name);

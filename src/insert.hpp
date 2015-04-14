@@ -32,8 +32,8 @@ public:
 
     auto values(typename ValueTypeOf<Types>::Type... vals);
 
-    std::string sql();
-    void execute(std::shared_ptr<Connection> connection);
+    std::string sql() override;
+    void execute(std::shared_ptr<Connection> connection) override;
 
 private:
     template<typename... TableTypes>

@@ -4,6 +4,7 @@
 #include "../table.hpp"
 #include "../create.hpp"
 #include "../insert.hpp"
+#include "../select.hpp"
 
 SQLLIB_NS
 
@@ -41,6 +42,15 @@ auto TableSet<TableType>::insert() {
 
     return NewPtr(new NewInsert(table, fieldTuple));
 };
+
+template<typename... TableTypes>
+template<int Index, int FieldID>
+auto TableSetImpl<TableTypes...>::select() {
+    using NewSelect = Select<TableTuple, Index, FieldID>;
+    using NewPtr = typename NewSelect::Ptr;
+
+    return NewPtr(new NewSelect(tableTuple));
+}
 
 template<typename... TableTypes>
 struct TableSetFromTuple<std::tuple<TableTypes...>> {
