@@ -21,6 +21,10 @@ public:
         return "VARCHAR(" + std::to_string(N) + std::string(")");
     }
 
+    static ValueType getValue(std::shared_ptr<Statement> stmt, int index) {
+        return stmt->stringValue(index);
+    }
+
     void bind(int index, std::shared_ptr<Statement> stmt) {
         stmt->bindString(index, value);
     }
@@ -38,6 +42,10 @@ public:
 
     static std::string getSQLType() {
         return "INTEGER";
+    }
+
+    static ValueType getValue(std::shared_ptr<Statement> stmt, int index) {
+        return stmt->intValue(index);
     }
 
     void bind(int index, std::shared_ptr<Statement> stmt) {

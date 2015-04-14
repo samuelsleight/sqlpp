@@ -26,7 +26,12 @@ public:
 
     virtual void bindInt(int index, int value) = 0;
     virtual void bindString(int index, std::string value) = 0;
+
     virtual void execute() = 0;
+    virtual bool select() = 0;
+
+    virtual int intValue(int index) = 0;
+    virtual std::string stringValue(int index) = 0;
 
 private:
     friend class Connection;
@@ -56,6 +61,10 @@ private:
     void bindString(int index, std::string value);
 
     void execute();
+    bool select();
+
+    int intValue(int index);
+    std::string stringValue(int index);
 };
 
 SQLLIB_SQLITE3_NS_END

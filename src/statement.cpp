@@ -41,6 +41,28 @@ void SQLite3Statement::execute() {
     ::sqlite3_reset(stmt);
 }
 
+bool SQLite3Statement::select() {
+    int err = ::sqlite3_step(stmt);
+
+    if(err == SQLITE_ROW) {
+        return true;
+    }
+
+    if(err == SQLITE_DONE) {
+        return false;
+    }
+
+    throw Exception(::sqlite3_errstr(err));
+}
+
+int SQLite3Statement::intValue(int index) {
+    return ::sqlite3_column_int(stmt, index);
+}
+
+std::string SQLite3Statement::stringValue(int index) {
+    return std::string(reinterpret_cast<const char*>(::sqlite3_column_text(stmt, index)));
+}
+
 SQLLIB_SQLITE3_NS_END
 #endif
 

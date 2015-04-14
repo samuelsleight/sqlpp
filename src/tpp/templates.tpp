@@ -4,6 +4,9 @@
 template<int...>
 struct List {};
 
+template<typename...>
+struct TList {};
+
 // Conditionals
 template<bool, typename, typename>
 struct IfElse;
@@ -95,14 +98,16 @@ struct ReplaceIndex<Tuple, T, Index, 1, false> {
 // TupleFold
 template<typename Tuple, typename T, typename F, int N = std::tuple_size<Tuple>::value>
 struct TupleFold {
-    static T fold(Tuple& tuple, T acc, F func) {
-        return TupleFold<Tuple, T, F, N - 1>::fold(tuple, func(acc, std::get<N - 1>(tuple)), func);
+    static auto fold(Tuple& tuple, T acc, F func) {
+        auto newAcc = func(acc, std::get<N - 1>(tuple));
+
+        return TupleFold<Tuple, decltype(newAcc), F, N - 1>::fold(tuple, newAcc, func);
     }
 };
 
 template<typename Tuple, typename T, typename F>
 struct TupleFold<Tuple, T, F, 1> {
-    static T fold(Tuple& tuple, T acc, F func) {
+    static auto fold(Tuple& tuple, T acc, F func) {
         return func(acc, std::get<0>(tuple));
     }
 };
@@ -159,6 +164,45 @@ struct SelectFields<TableTuple, Index, Field> {
     }
 };
 
+// SelectCallbackType
+template<typename TableTuple, typename T, int... Ns>
+struct SelectCallbackType;
+
+template<typename TableTuple, typename... Ts, int Index, int Field, int... Ns>
+struct SelectCallbackType<TableTuple, TList<Ts...>, Index, Field, Ns...> {
+    using FieldTuple = typename std::tuple_element<Index, TableTuple>::type::FieldTuple;
+    using FieldType = typename std::tuple_element<IndexFromID<FieldTuple, Field>::value, FieldTuple>::type::ValueType::ValueType;
+
+    using type = typename SelectCallbackType<TableTuple, TList<Ts..., FieldType>, Ns...>::type;
+};
+
+template<typename TableTuple, typename... Ts>
+struct SelectCallbackType<TableTuple, TList<Ts...>> {
+    using type = std::function<void(Ts...)>;
+};
+
+// SelectFieldTuple
+template<typename TableTuple, int... Ns>
+struct SelectFieldTuple;
+
+template<typename TableTuple, int Index, int Field, int... Ns>
+struct SelectFieldTuple<TableTuple, Index, Field, Ns...> {
+    static auto make(TableTuple& tableTuple) {
+        auto field = std::get<Index>(tableTuple).template field<Field>();
+
+        return std::tuple_cat(std::make_tuple(field), SelectFieldTuple<TableTuple, Ns...>::make(tableTuple));
+    }
+};
+
+template<typename TableTuple, int Index, int Field>
+struct SelectFieldTuple<TableTuple, Index, Field> {
+    static auto make(TableTuple& tableTuple) {
+        auto field = std::get<Index>(tableTuple).template field<Field>();
+
+        return std::make_tuple(field);
+    }
+};
+
 // WriteWhere
 template<typename, typename>
 struct WriteWhere;
@@ -191,6 +235,7 @@ struct WriteWhere<TableTuple, SQLLIB_NS_(And)<T>> {
     }
 };
 
+// WriteWhere<Eq>
 template<typename TableTuple, int I1, int F1, int I2, int F2>
 struct WriteWhere<TableTuple, SQLLIB_NS_(Eq)<I1, F1, I2, F2>> {
     static std::string write(TableTuple& tuple) {
@@ -205,10 +250,41 @@ struct WriteWhere<TableTuple, SQLLIB_NS_(Eq)<I1, F1, I2, F2>> {
     }
 };
 
+// Call Function Using Tuple Values
+// http://stackoverflow.com/a/10766422
+namespace detail
+{
+    template <typename F, typename Tuple, bool Done, int Total, int... N>
+    struct call_impl
+    {
+        static void call(F f, Tuple && t)
+        {
+            call_impl<F, Tuple, Total == 1 + sizeof...(N), Total, N..., sizeof...(N)>::call(f, std::forward<Tuple>(t));
+        }
+    };
+
+    template <typename F, typename Tuple, int Total, int... N>
+    struct call_impl<F, Tuple, true, Total, N...>
+    {
+        static void call(F f, Tuple && t)
+        {
+            f(std::get<N>(std::forward<Tuple>(t))...);
+        }
+    };
+}
+
+// user invokes this
+template <typename F, typename Tuple>
+void callWithTuple(F f, Tuple && t)
+{
+    typedef typename std::decay<Tuple>::type ttype;
+    detail::call_impl<F, Tuple, 0 == std::tuple_size<ttype>::value, std::tuple_size<ttype>::value>::call(f, std::forward<Tuple>(t));
+}
+
 SQLLIB_NS
 
 template<typename Tuple, typename T, typename F>
-T tupleFold(Tuple& tuple, T acc, F func) {
+auto tupleFold(Tuple& tuple, T acc, F func) {
     return TupleFold<Tuple, T, F>::fold(tuple, acc, func);
 }
 

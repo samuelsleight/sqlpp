@@ -24,6 +24,9 @@ class Create;
 template<typename, typename>
 class Insert;
 
+template<typename, int...>
+class SelectImpl;
+
 class Connection {
 public:
     virtual ~Connection();
@@ -38,6 +41,9 @@ private:
 
     template<typename, typename>
     friend class Insert;
+
+    template<typename, int...>
+    friend class SelectImpl;
 
     virtual void execute(std::string sql) = 0;
     virtual std::shared_ptr<Statement> prepareSQL(std::string sql) = 0;

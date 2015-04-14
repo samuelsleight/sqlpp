@@ -35,7 +35,10 @@ int main(int argc, char* argv[]) {
     auto sel = db->tables<1, 0, 0>()
         ->select<1, 1>()
         ->select<2, 1>()
-        ->where<sqlpp::And<sqlpp::Eq<0, 1, 1, 0>, sqlpp::Eq<0, 2, 2, 0>>>();
+        ->where<sqlpp::And<sqlpp::Eq<0, 1, 1, 0>, sqlpp::Eq<0, 2, 2, 0>>>()
+        ->callback([](std::string baker, std::string eater) {
+            std::cout << baker << " baked a cake for " << eater << std::endl;
+        });
 
     std::cout << sel->sql() << std::endl;
 
@@ -44,6 +47,7 @@ int main(int argc, char* argv[]) {
         db->tables<0, 1>()->create()->execute(conn);
         people->execute(conn);
         cakes->execute(conn);
+        sel->execute(conn);
     } catch(std::exception& e) {
         std::cout << e.what() << std::endl;
     }

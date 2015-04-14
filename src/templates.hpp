@@ -7,11 +7,12 @@
 #include <tuple>
 #include <string>
 #include <sstream>
+#include <functional>
 
 SQLLIB_NS
 
 template<typename Tuple, typename T, typename F>
-T tupleFold(Tuple& tuple, T acc, F func);
+auto tupleFold(Tuple& tuple, T acc, F func);
 
 template<typename Tuple, typename F>
 void tupleForEach(Tuple& tuple, F func);

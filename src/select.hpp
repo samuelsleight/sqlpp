@@ -6,6 +6,7 @@
 
 #include <string>
 #include <sstream>
+#include <memory>
 
 SQLLIB_NS
 
@@ -13,14 +14,18 @@ template<typename...>
 class TableSetImpl;
 
 template<typename TableTuple, int... Ns>
-class SelectImpl : public Query {
+class SelectImpl : public Query, public std::enable_shared_from_this<SelectImpl<TableTuple, Ns...>> {
 public:
+    using CallbackType = typename SelectCallbackType<TableTuple, TList<>, Ns...>::type;
+
     virtual ~SelectImpl();
 
+    auto callback(CallbackType func);
     void execute(std::shared_ptr<Connection> connection) override;
 
 protected:
     TableTuple tableTuple;
+    CallbackType callbackFunc;
 
     SelectImpl(TableTuple tableTuple);
 };

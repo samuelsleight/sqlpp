@@ -5,7 +5,7 @@ SelectImpl<TableTuple, Ns...>::~SelectImpl() {}
 
 template<typename TableTuple, int... Ns>
 SelectImpl<TableTuple, Ns...>::SelectImpl(TableTuple tableTuple)
-    : tableTuple(tableTuple) {}
+    : tableTuple(tableTuple), callbackFunc([](auto... ps){}) {}
 
 template<typename TableTuple, int... Ns>
 Select<TableTuple, Ns...>::Select(TableTuple tableTuple)
@@ -70,8 +70,26 @@ std::string SelectWhere<TableTuple, Where, Ns...>::sql() {
 }
 
 template<typename TableTuple, int... Ns>
-void SelectImpl<TableTuple, Ns...>::execute(std::shared_ptr<Connection> connection) {
+auto SelectImpl<TableTuple, Ns...>::callback(CallbackType func) {
+    this->callbackFunc = func;
 
+    return this->shared_from_this();
+}
+
+template<typename TableTuple, int... Ns>
+void SelectImpl<TableTuple, Ns...>::execute(std::shared_ptr<Connection> connection) {
+    auto stmt = connection->prepareSQL(sql());
+
+    auto tuple = SelectFieldTuple<TableTuple, Ns...>::make(tableTuple);
+
+    while(stmt->select()) {
+        int i = std::tuple_size<decltype(tuple)>::value - 1;
+        auto values = tupleFold(tuple, std::make_tuple(), [&i, &stmt](auto acc, auto field) {
+            return std::tuple_cat(std::make_tuple(field.getValue(stmt, i--)), acc);
+        });
+
+        callWithTuple(callbackFunc, values);
+    }
 }
 
 SQLLIB_NS_END
