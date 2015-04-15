@@ -66,7 +66,7 @@ private:
     SQLite3Connection(std::string dbfile);
 
     void execute(std::string sql) override;
-    std::shared_ptr<SQLLIB_NS_(Statement)> prepareSQL(std::string sql);
+    std::shared_ptr<SQLLIB_NS_(Statement)> prepareSQL(std::string sql) override;
 };
 
 SQLLIB_SQLITE3_NS_END

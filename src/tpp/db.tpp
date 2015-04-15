@@ -39,7 +39,7 @@ template<int FieldID, typename FieldType>
 auto DB<ActiveTableID, Tables...>::addField(std::string name) {
     constexpr int index = ::IndexFromID<TableTuple, ActiveTableID>::value;
 
-    auto table = std::get<index>(tableTuple).addField<FieldID, FieldType>(name);
+    auto table = std::get<index>(tableTuple).template addField<FieldID, FieldType>(name);
     auto tuple = ::ReplaceIndex<TableTuple, decltype(table), index>::replace(tableTuple, table);
 
     using NewDB = typename DBFromTuple<ActiveTableID, decltype(tuple)>::type;
