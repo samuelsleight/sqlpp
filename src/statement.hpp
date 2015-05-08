@@ -4,6 +4,8 @@
 #include "defines.hpp"
 
 #include <memory>
+#include <string>
+#include <sstream>
 
 #ifndef SQLLIB_NO_SQLITE3
 #include <sqlite3.h>
@@ -20,7 +22,7 @@ SQLLIB_SQLITE3_NS_END
 
 class Connection;
 
-class Statement {
+class SQLLIB_API Statement {
 public:
     virtual ~Statement();
 
@@ -44,7 +46,7 @@ private:
 #ifndef SQLLIB_NO_SQLITE3
 SQLLIB_SQLITE3_NS
 
-class SQLite3Statement : public SQLLIB_NS_(Statement), public std::enable_shared_from_this<SQLite3Statement> {
+class SQLLIB_API SQLite3Statement : public SQLLIB_NS_(Statement), public std::enable_shared_from_this<SQLite3Statement> {
 public:
     using Ptr = std::shared_ptr<SQLite3Statement>;
 

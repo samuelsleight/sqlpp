@@ -6,7 +6,7 @@
 
 SQLLIB_NS
 
-class Query {
+class SQLLIB_API Query {
 public:
     virtual ~Query();
 

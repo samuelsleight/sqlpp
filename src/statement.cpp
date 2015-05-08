@@ -24,7 +24,7 @@ void SQLite3Statement::bindInt(int index, int value) {
 }
 
 void SQLite3Statement::bindString(int index, std::string value) {
-    int err = ::sqlite3_bind_text(stmt, index, value.c_str(), value.size(), SQLITE_STATIC);
+    int err = ::sqlite3_bind_text(stmt, index, value.c_str(), value.size(), SQLITE_TRANSIENT);
 
     if(err != SQLITE_OK) {
         throw Exception(::sqlite3_errstr(err));
@@ -60,7 +60,11 @@ int SQLite3Statement::intValue(int index) {
 }
 
 std::string SQLite3Statement::stringValue(int index) {
-    return std::string(reinterpret_cast<const char*>(::sqlite3_column_text(stmt, index)));
+//    return std::string(reinterpret_cast<const char*>(::sqlite3_column_text(stmt, index)));
+	std::ostringstream str;
+
+	str << ::sqlite3_column_text(stmt, index);
+	return str.str();
 }
 
 SQLLIB_SQLITE3_NS_END

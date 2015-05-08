@@ -27,7 +27,7 @@ class Insert;
 template<typename, int...>
 class SelectImpl;
 
-class Connection {
+class SQLLIB_API Connection {
 public:
     virtual ~Connection();
 
@@ -52,7 +52,7 @@ private:
 #ifndef SQLLIB_NO_SQLITE3
 SQLLIB_SQLITE3_NS
 
-class SQLite3Connection : public SQLLIB_NS_(Connection), public std::enable_shared_from_this<SQLite3Connection> {
+class SQLLIB_API SQLite3Connection : public SQLLIB_NS_(Connection), public std::enable_shared_from_this<SQLite3Connection> {
 public:
     using Ptr = std::shared_ptr<SQLite3Connection>;
 

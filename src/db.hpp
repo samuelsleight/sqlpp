@@ -9,14 +9,14 @@
 
 SQLLIB_NS
 
-class EmptyDB : public std::enable_shared_from_this<EmptyDB> {
+class SQLLIB_API EmptyDB : public std::enable_shared_from_this<EmptyDB> {
 public:
     using Ptr = std::shared_ptr<EmptyDB>;
 
     template<int ID>
     auto addTable(std::string name);
 
-    friend Ptr database();
+    friend SQLLIB_API Ptr database();
 
 private:
     EmptyDB();
@@ -57,7 +57,7 @@ SQLLIB_NS_END
 
 SQLLIB_NS
 
-EmptyDB::Ptr database();
+SQLLIB_API EmptyDB::Ptr database();
 
 SQLLIB_NS_END
 

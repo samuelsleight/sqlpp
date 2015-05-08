@@ -8,7 +8,7 @@
 
 SQLLIB_NS
 
-class Exception : public std::exception {
+class SQLLIB_API Exception : public std::exception {
 public:
     Exception(std::string message);
 

@@ -1,6 +1,16 @@
 #ifndef SQLLIB_DEFINES_HPP
 #define SQLLIB_DEFINES_HPP
 
+#ifdef _MSC_VER
+#ifdef SQLLIB_EXPORT
+#define SQLLIB_API __declspec(dllexport)
+#else
+#define SQLLIB_API __declspec(dllimport)
+#endif
+#else
+#define SQLLIB_API
+#endif
+
 #define SQLLIB_NS_NAME sqlpp
 #define SQLLIB_SQLITE3_NS_NAME sqlite3
 
